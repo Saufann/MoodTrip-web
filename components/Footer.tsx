@@ -4,17 +4,27 @@ import AppDownloadButtons from "@/components/AppDownloadButtons";
 
 const explore = [
   { href: "/jelajah", label: "Jelajah Tempat" },
+  { href: "/peta", label: "Peta Wisata" },
   { href: "/paket", label: "Paket Wisata" },
   { href: "/kuliner", label: "Kuliner" },
-  { href: "/aksesoris", label: "Aksesoris" },
+  { href: "/aksesoris", label: "Aksesoris & Oleh-oleh" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const account = [
   { href: "/tes-kepribadian", label: "Tes Kepribadian" },
   { href: "/profil", label: "Profil & Tag" },
+  { href: "/itinerary", label: "Itinerary Saya" },
+  { href: "/pesanan", label: "Riwayat Pesanan" },
   { href: "/membership", label: "Membership" },
   { href: "/masuk", label: "Masuk" },
+];
+
+const bantuan = [
+  { href: "/faq", label: "FAQ" },
+  { href: "/mitra", label: "Mitra Lokal" },
   { href: "/tentang", label: "Tentang Kami" },
+  { href: "/privasi", label: "Kebijakan Privasi" },
 ];
 
 export default function Footer() {
@@ -63,17 +73,27 @@ export default function Footer() {
         </nav>
 
         <div className="text-sm">
-          <div className="font-semibold text-white">Kontak</div>
-          <ul className="mt-3 space-y-2 text-white/70">
+          <div className="font-semibold text-white">Bantuan</div>
+          <ul className="mt-3 space-y-2">
+            {bantuan.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  className="text-white/70 transition-colors hover:text-white"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
             <li>
               <a
                 href="tel:+6285737736349"
-                className="transition-colors hover:text-white"
+                className="text-white/70 transition-colors hover:text-white"
               >
                 0857-3773-6349
               </a>
             </li>
-            <li>Mataram, Lombok, NTB</li>
+            <li className="text-white/70">Mataram, Lombok, NTB</li>
           </ul>
         </div>
       </div>

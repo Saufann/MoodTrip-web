@@ -1,5 +1,7 @@
 import Link from "next/link";
 import SpotCard from "@/components/SpotCard";
+import ForYou from "@/components/ForYou";
+import HeroSearch from "@/components/HeroSearch";
 import AppDownloadButtons from "@/components/AppDownloadButtons";
 import { SPOTS } from "@/lib/spots";
 import { HERO_IMAGE, CTA_IMAGE } from "@/lib/images";
@@ -7,6 +9,7 @@ import { HERO_IMAGE, CTA_IMAGE } from "@/lib/images";
 const STEPS = [
   {
     n: "01",
+    href: "/tes-kepribadian",
     t: "Kenali dirimu",
     d: "Ikuti tes kepribadian singkat untuk tahu persona travel-mu.",
     icon: (
@@ -18,6 +21,7 @@ const STEPS = [
   },
   {
     n: "02",
+    href: "/profil",
     t: "Dapat rekomendasi",
     d: "Kami cocokkan paket, kuliner, dan tempat sesuai personamu.",
     icon: (
@@ -29,6 +33,7 @@ const STEPS = [
   },
   {
     n: "03",
+    href: "/paket",
     t: "Pesan & jelajahi",
     d: "Pesan paket dari mitra lokal dan mulai petualanganmu.",
     icon: (
@@ -72,30 +77,8 @@ export default function HomePage() {
               disesuaikan dengan mood dan kepribadianmu.
             </p>
 
-            {/* Search pill ala marketplace travel */}
-            <Link
-              href="/jelajah"
-              className="mt-8 flex max-w-md items-center gap-3 rounded-full bg-white p-2 pl-5 shadow-card transition-transform hover:scale-[1.01]"
-            >
-              <svg
-                aria-hidden
-                className="text-muted"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.5" y2="16.5" />
-              </svg>
-              <span className="flex-1 text-sm text-muted">
-                Mau ke mana? Coba &ldquo;healing&rdquo; atau &ldquo;pedas&rdquo;...
-              </span>
-              <span className="btn-primary px-5 py-2.5 text-sm">Jelajahi</span>
-            </Link>
+            {/* Search beneran — submit membawa query ke /jelajah */}
+            <HeroSearch />
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/tes-kepribadian" className="btn-accent">
@@ -122,8 +105,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Rekomendasi personal */}
+      <div className="pt-16">
+        <ForYou />
+      </div>
+
       {/* Cara kerja */}
-      <section className="mx-auto max-w-6xl px-5 py-20">
+      <section className="mx-auto max-w-6xl px-5 pb-20 pt-8">
         <div className="max-w-xl">
           <p className="text-sm font-bold uppercase tracking-widest text-accent">
             Cara kerja
@@ -134,16 +122,21 @@ export default function HomePage() {
         </div>
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           {STEPS.map((s) => (
-            <div key={s.n} className="card-hover p-7">
+            <Link key={s.n} href={s.href} className="group card-hover p-7">
               <div className="flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   {s.icon}
                 </div>
                 <span className="text-3xl font-extrabold text-line">{s.n}</span>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-ink">{s.t}</h3>
+              <h3 className="mt-5 text-lg font-bold text-ink transition-colors group-hover:text-primary">
+                {s.t}
+              </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.d}</p>
-            </div>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                Mulai <span aria-hidden>→</span>
+              </span>
+            </Link>
           ))}
         </div>
       </section>

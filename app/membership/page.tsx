@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { WHATSAPP } from "@/lib/store";
+
 const tiers = [
   {
     name: "MoodTrip Free",
@@ -76,13 +79,22 @@ export default function MembershipPage() {
                 </li>
               ))}
             </ul>
-            <button
-              className={`${
-                t.highlight ? "btn-accent" : "btn-primary"
-              } mt-8 w-full`}
-            >
-              {t.cta}
-            </button>
+            {t.highlight ? (
+              <a
+                href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+                  "Halo MoodTrip! Saya mau coba MoodTrip Premium (14 hari gratis)."
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-accent mt-8 w-full"
+              >
+                {t.cta}
+              </a>
+            ) : (
+              <Link href="/tes-kepribadian" className="btn-primary mt-8 w-full">
+                {t.cta}
+              </Link>
+            )}
           </div>
         ))}
       </div>

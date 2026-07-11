@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
-import { getWishlist, cartCount, STORE_EVENT } from "@/lib/store";
+import { wishlistCount, cartCount, STORE_EVENT } from "@/lib/store";
+import { useUser } from "@/components/useUser";
 
 const links = [
   { href: "/jelajah", label: "Jelajah" },
@@ -17,13 +18,14 @@ const links = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [wish, setWish] = useState(0);
   const [cart, setCart] = useState(0);
 
   useEffect(() => {
     const update = () => {
-      setWish(getWishlist().length);
+      setWish(wishlistCount());
       setCart(cartCount());
     };
     update();
@@ -91,12 +93,14 @@ export default function Navbar() {
               <path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L23 7H6" />
             </svg>
           </IconLink>
-          <Link
-            href="/masuk"
-            className="hidden text-sm font-medium text-primary hover:underline sm:block"
-          >
-            Masuk
-          </Link>
+          {!user && (
+            <Link
+              href="/masuk"
+              className="hidden text-sm font-medium text-primary hover:underline sm:block"
+            >
+              Masuk
+            </Link>
+          )}
           <Link
             href="/tes-kepribadian"
             className="hidden rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-glow sm:block"

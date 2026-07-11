@@ -58,7 +58,10 @@ export default function TesWisataPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/paket" className="btn-accent">
+            <Link
+              href={`/paket?persona=${encodeURIComponent(result.name)}`}
+              className="btn-accent"
+            >
               Pesan Paket Rekomendasi
             </Link>
             <button onClick={restart} className="btn-outline">

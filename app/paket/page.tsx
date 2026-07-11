@@ -3,65 +3,31 @@
 // Paket wisata dari mitra lokal (contoh data). MoodTrip = kurator/marketplace,
 // mitra yang menjalankan trip-nya. Pemesanan diteruskan ke WhatsApp mitra/admin.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { paketImage } from "@/lib/images";
-import { WHATSAPP } from "@/lib/store";
-
-type Paket = {
-  name: string;
-  partner: string;
-  price: string;
-  persona: string;
-  desc: string;
-};
-
-const PACKAGES: Paket[] = [
-  {
-    name: "Slow Trip Healing 3 Hari",
-    partner: "Lombok Tenang Tour",
-    price: "Rp1.250.000",
-    persona: "Sang Penenang",
-    desc: "Retreat santai: taman kota, sunset Senggigi, dan spot tenang.",
-  },
-  {
-    name: "Food Trail Lombok",
-    partner: "Rasa Lombok Trip",
-    price: "Rp450.000",
-    persona: "Pemburu Rasa",
-    desc: "Ayam Taliwang, Nasi Balap Puyung, dan pasar malam dalam 1 hari.",
-  },
-  {
-    name: "Trekking Bukit Merese & Sunrise",
-    partner: "Merese Adventure",
-    price: "Rp650.000",
-    persona: "Sang Petualang",
-    desc: "Naik bukit savana, sunrise, dan island hopping ringan.",
-  },
-  {
-    name: "Photo Spot Tour Kota Tua",
-    partner: "Ampenan Frame",
-    price: "Rp400.000",
-    persona: "Pemburu Estetik",
-    desc: "Desa Sade, Kafe Ampenan Heritage, dan hidden gem aesthetic.",
-  },
-  {
-    name: "Sunset Dinner Romantis",
-    partner: "Senggigi Couple",
-    price: "Rp900.000",
-    persona: "Sang Romantis",
-    desc: "Private beach, candlelight seafood dinner, dan spa pasangan.",
-  },
-  {
-    name: "Family Explore 4 Hari",
-    partner: "Lombok Keluarga",
-    price: "Rp2.100.000",
-    persona: "Penjelajah Keluarga",
-    desc: "Edukasi budaya Desa Sade dan pantai ramah anak.",
-  },
-];
+import { WHATSAPP, saveOrder } from "@/lib/store";
+import { Paket, PACKAGES } from "@/lib/paket";
+import { useModal } from "@/components/useModal";
+import HeartNamed from "@/components/HeartNamed";
 
 export default function PaketPage() {
+  const [detail, setDetail] = useState<Paket | null>(null);
   const [selected, setSelected] = useState<Paket | null>(null);
+  const [persona, setPersona] = useState("");
+
+  // Terima ?persona=... dari hasil tes wisata
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("persona");
+    if (p && PACKAGES.some((x) => x.persona === p)) setPersona(p);
+  }, []);
+
+  // Paket yang cocok dengan persona tampil paling depan
+  const list = persona
+    ? [...PACKAGES].sort(
+        (a, b) =>
+          Number(b.persona === persona) - Number(a.persona === persona)
+      )
+    : PACKAGES;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -71,11 +37,32 @@ export default function PaketPage() {
         khusus.
       </p>
 
+      {persona && (
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 px-5 py-3">
+          <p className="text-sm text-ink">
+            ✨ Menampilkan rekomendasi untuk persona{" "}
+            <span className="font-bold text-primary">{persona}</span> paling
+            atas
+          </p>
+          <button
+            onClick={() => setPersona("")}
+            className="text-xs font-semibold text-muted hover:text-accent"
+          >
+            ✕ Hapus filter
+          </button>
+        </div>
+      )}
+
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {PACKAGES.map((p) => (
+        {list.map((p) => (
           <article
             key={p.name}
-            className="group card-hover flex flex-col overflow-hidden"
+            role="button"
+            tabIndex={0}
+            aria-label={`Lihat detail ${p.name}`}
+            onClick={() => setDetail(p)}
+            onKeyDown={(e) => e.key === "Enter" && setDetail(p)}
+            className="group card-hover flex cursor-pointer flex-col overflow-hidden"
           >
             <div className="relative h-44 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -85,9 +72,21 @@ export default function PaketPage() {
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <span className="chip absolute left-3 top-3 bg-white/90 font-semibold text-primary shadow-soft backdrop-blur">
+              <span
+                className={`chip absolute left-3 top-3 font-semibold shadow-soft backdrop-blur ${
+                  persona === p.persona
+                    ? "bg-accent text-white"
+                    : "bg-white/90 text-primary"
+                }`}
+              >
+                {persona === p.persona ? "✨ " : ""}
                 {p.persona}
               </span>
+              <HeartNamed
+                kind="paket"
+                name={p.name}
+                className="absolute right-3 top-3"
+              />
             </div>
             <div className="flex flex-1 flex-col p-5">
               <h3 className="text-lg font-bold leading-snug text-ink">
@@ -107,7 +106,10 @@ export default function PaketPage() {
                   </span>
                 </div>
                 <button
-                  onClick={() => setSelected(p)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(p);
+                  }}
                   className="btn-accent px-5 py-2 text-sm"
                 >
                   Pesan
@@ -118,9 +120,106 @@ export default function PaketPage() {
         ))}
       </div>
 
-      {selected && (
-        <BookingModal paket={selected} onClose={() => setSelected(null)} />
+      {detail && !selected && (
+        <DetailModal
+          paket={detail}
+          onClose={() => setDetail(null)}
+          onBook={() => setSelected(detail)}
+        />
       )}
+      {selected && (
+        <BookingModal
+          paket={selected}
+          onClose={() => {
+            setSelected(null);
+            setDetail(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function DetailModal({
+  paket,
+  onClose,
+  onBook,
+}: {
+  paket: Paket;
+  onClose: () => void;
+  onBook: () => void;
+}) {
+  useModal(onClose);
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 backdrop-blur-sm sm:items-center sm:p-5"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Detail ${paket.name}`}
+    >
+      <div
+        className="max-h-[92vh] w-full max-w-lg animate-fade-up overflow-y-auto rounded-t-3xl bg-white shadow-card sm:rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="relative h-52">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={paketImage(paket.persona)}
+            alt={paket.name}
+            className="h-full w-full object-cover"
+          />
+          <button
+            type="button"
+            aria-label="Tutup"
+            onClick={onClose}
+            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink shadow-soft backdrop-blur"
+          >
+            ✕
+          </button>
+          <span className="chip absolute left-4 top-4 bg-white/90 font-semibold text-primary shadow-soft backdrop-blur">
+            {paket.persona}
+          </span>
+        </div>
+
+        <div className="p-7">
+          <h2 className="text-2xl font-extrabold text-ink">{paket.name}</h2>
+          <p className="mt-1 text-sm text-muted">
+            oleh {paket.partner} · {paket.durasi}
+          </p>
+          <p className="mt-4 leading-relaxed text-ink/85">{paket.desc}</p>
+
+          <h3 className="mt-6 font-bold text-ink">Yang kamu dapat</h3>
+          <ul className="mt-3 space-y-2.5 text-sm text-ink">
+            {paket.include.map((f) => (
+              <li key={f} className="flex items-start gap-2.5">
+                <span
+                  aria-hidden
+                  className="mt-0.5 flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary"
+                >
+                  ✓
+                </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-7 flex items-center justify-between gap-4 border-t border-line pt-5">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-muted">
+                Mulai dari
+              </div>
+              <span className="text-2xl font-extrabold text-primary">
+                {paket.price}
+              </span>
+              <span className="text-sm text-muted">/orang</span>
+            </div>
+            <button onClick={onBook} className="btn-accent">
+              Pesan Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -132,19 +231,22 @@ function BookingModal({
   paket: Paket;
   onClose: () => void;
 }) {
+  useModal(onClose);
   const [nama, setNama] = useState("");
   const [tanggal, setTanggal] = useState("");
   const [peserta, setPeserta] = useState(2);
 
-  const valid = nama.trim() !== "" && tanggal !== "";
+  // Tidak bisa memilih tanggal yang sudah lewat
+  const today = new Date().toISOString().split("T")[0];
+  const valid = nama.trim() !== "" && tanggal >= today;
 
   const waText = encodeURIComponent(
     `Halo MoodTrip! Saya ingin memesan paket:\n\n` +
-      `📦 ${paket.name} (${paket.partner})\n` +
-      `💰 ${paket.price}/orang\n` +
-      `👤 Nama: ${nama}\n` +
-      `📅 Tanggal: ${tanggal}\n` +
-      `👥 Jumlah peserta: ${peserta}\n\n` +
+      `${paket.name} (${paket.partner})\n` +
+      `${paket.price}/orang\n` +
+      `Nama: ${nama}\n` +
+      `Tanggal: ${tanggal}\n` +
+      `Jumlah peserta: ${peserta}\n\n` +
       `Mohon info ketersediaannya. Terima kasih!`
   );
 
@@ -209,6 +311,7 @@ function BookingModal({
               <input
                 id="tanggal"
                 type="date"
+                min={today}
                 value={tanggal}
                 onChange={(e) => setTanggal(e.target.value)}
                 className="w-full rounded-xl border border-line px-4 py-3 outline-none transition-colors focus:border-primary"
@@ -244,7 +347,16 @@ function BookingModal({
                 : "cursor-not-allowed bg-line text-muted"
             }`}
             onClick={(e) => {
-              if (!valid) e.preventDefault();
+              if (!valid) {
+                e.preventDefault();
+                return;
+              }
+              saveOrder({
+                type: "paket",
+                title: paket.name,
+                detail: `${paket.partner} · ${paket.price}/orang\n${nama} · ${tanggal} · ${peserta} peserta`,
+                date: new Date().toISOString(),
+              });
             }}
           >
             <svg

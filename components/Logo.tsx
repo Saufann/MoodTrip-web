@@ -2,12 +2,13 @@ import Link from "next/link";
 
 export function LogoMark({ className = "h-9 w-9" }: { className?: string }) {
   return (
-    <span
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/images/logo.svg"
+      alt=""
       aria-hidden
-      className={`grid place-items-center rounded-xl bg-gradient-to-br from-primary to-primary-dark font-extrabold text-white shadow-soft ${className}`}
-    >
-      M
-    </span>
+      className={`rounded-xl ${className}`}
+    />
   );
 }
 
@@ -20,7 +21,7 @@ export default function Logo({ light = false }: { light?: boolean }) {
           light ? "text-white" : "text-ink"
         }`}
       >
-        Mood<span className="text-primary">Trip</span>
+        Mood<span className={light ? "text-white" : "text-primary"}>Trip</span>
       </span>
     </Link>
   );

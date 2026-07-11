@@ -2,11 +2,24 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 export const metadata: Metadata = {
-  title: "MoodTrip — Wisata Lombok Sesuai Kepribadianmu",
+  metadataBase: new URL("https://moodtrip.vercel.app"), // TODO: ganti domain
+  title: {
+    default: "MoodTrip — Wisata Lombok Sesuai Kepribadianmu",
+    template: "%s — MoodTrip",
+  },
   description:
     "Ikuti tes kepribadian MoodTrip dan dapatkan rekomendasi paket wisata, aksesoris, dan kuliner Lombok yang pas untukmu.",
+  openGraph: {
+    title: "MoodTrip — Wisata Lombok Sesuai Kepribadianmu",
+    description:
+      "Rekomendasi wisata Lombok yang disesuaikan dengan mood dan kepribadianmu.",
+    images: ["/images/og.png"],
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -29,6 +42,7 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col">
+        <AnnouncementBar />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

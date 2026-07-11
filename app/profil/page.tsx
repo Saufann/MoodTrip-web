@@ -13,9 +13,13 @@ import {
 } from "@/lib/profile";
 import { STORE_EVENT } from "@/lib/store";
 import { GALEN_INFO, GalenId, MBTI_DESC } from "@/lib/tests";
+import { useUser } from "@/components/useUser";
+import { supabase, isSupabaseReady } from "@/lib/supabase";
+import { loadCloudProfile } from "@/lib/profile";
 
 export default function ProfilPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     const update = () => setProfile(getProfile());
@@ -23,6 +27,11 @@ export default function ProfilPage() {
     window.addEventListener(STORE_EVENT, update);
     return () => window.removeEventListener(STORE_EVENT, update);
   }, []);
+
+  // Saat login terdeteksi, tarik profil dari cloud sekali
+  useEffect(() => {
+    if (user) loadCloudProfile(user.id);
+  }, [user]);
 
   if (!profile) return <div className="min-h-[50vh]" />;
 
@@ -195,6 +204,50 @@ export default function ProfilPage() {
           })}
         </div>
       </section>
+
+      {/* Status akun */}
+      {isSupabaseReady && (
+        <div className="card mt-6 flex flex-wrap items-center justify-between gap-3 p-5">
+          {user ? (
+            <>
+              <p className="text-sm text-ink">
+                ✅ Masuk sebagai{" "}
+                <span className="font-semibold">{user.email}</span> — profil
+                tersinkron ke akunmu.
+              </p>
+              <button
+                onClick={() => supabase?.auth.signOut()}
+                className="btn-outline py-2 text-sm"
+              >
+                Keluar
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted">
+                Profil ini baru tersimpan di perangkat. Masuk agar tersinkron
+                antar perangkat &amp; bisa menulis review.
+              </p>
+              <Link href="/masuk" className="btn-primary py-2 text-sm">
+                Masuk / Daftar
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Tautan cepat */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <Link href="/wishlist" className="card-hover p-4 text-center text-sm font-semibold text-ink">
+          ❤️ Wishlist
+        </Link>
+        <Link href="/itinerary" className="card-hover p-4 text-center text-sm font-semibold text-ink">
+          🗓️ Itinerary Saya
+        </Link>
+        <Link href="/pesanan" className="card-hover p-4 text-center text-sm font-semibold text-ink">
+          🧾 Riwayat Pesanan
+        </Link>
+      </div>
 
       <p className="mt-6 text-center text-xs text-muted">
         Profil tersimpan di perangkat ini. Setelah login aktif, profil akan

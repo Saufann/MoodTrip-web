@@ -4,7 +4,9 @@
 const u = (id: string, w = 800) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=70`;
 
-export const HERO_IMAGE = u("photo-1507525428034-b723cf961d3e", 2000);
+export const unsplash = u;
+
+export const HERO_IMAGE = "/images/pantai_senggigi.jpg"; // foto sendiri
 export const CTA_IMAGE = u("photo-1476514525535-07fb3b4ae5f1", 1600);
 
 // Foto per spot (key = spot.id)
@@ -17,6 +19,18 @@ const SPOT_IMAGES: Record<number, string> = {
   6: "/images/ayam_taliwang.jpeg", // Ayam Taliwang
   7: "/images/nasi_puyung.jpeg", // Nasi Balap Puyung
   8: "/images/ampenan_heritage.jpeg", // Kafe Ampenan
+  9: u("photo-1519046904884-53103b34b206"), // Gili Trawangan
+  10: u("photo-1432405972618-c60b0225b8f9"), // Sendang Gile
+  11: u("photo-1501785888041-af3ef285b470"), // Bukit Selong
+  12: u("photo-1500375592092-40eb2168fd21"), // Tanjung Aan
+  13: u("photo-1507525428034-b723cf961d3e"), // Pink Beach
+  14: u("photo-1544551763-46a013bb70d5"), // Gili Nanggu — snorkeling
+  15: u("photo-1432405972618-c60b0225b8f9"), // Tiu Kelep
+  16: u("photo-1464822759023-fed622ff2c3b"), // Sembalun
+  17: "/images/foto_ampenan.jpeg", // Kota Tua Ampenan — foto sendiri
+  18: u("photo-1519046904884-53103b34b206"), // Kuta Mandalika
+  19: u("photo-1544441893-675973e31985"), // Sukarara — tenun
+  20: u("photo-1555939594-58d7cb561ad1"), // Sate Rembiga
 };
 
 export function spotImage(id: number) {
@@ -41,7 +55,7 @@ export function paketImage(persona: string) {
 const RESTO_IMAGES: Record<string, string> = {
   "Warung Ayam Taliwang": "/images/ayam_taliwang.jpeg",
   "Nasi Balap Puyung": "/images/nasi_puyung.jpeg",
-  "Kafe Ampenan Heritage": u("photo-1501339847302-ac426a4a7cbb"),
+  "Kafe Ampenan Heritage": "/images/ampenan_heritage.jpeg", // foto sendiri
 };
 
 export function restoImage(name: string) {

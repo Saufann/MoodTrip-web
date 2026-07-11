@@ -8,6 +8,7 @@ import {
   setCartQty,
   clearCart,
   formatRp,
+  saveOrder,
   STORE_EVENT,
   WHATSAPP,
 } from "@/lib/store";
@@ -101,6 +102,16 @@ export default function KeranjangPage() {
           href={`https://wa.me/${WHATSAPP}?text=${waText}`}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            saveOrder({
+              type: "belanja",
+              title: `${items.length} produk aksesoris`,
+              detail:
+                items.map((i) => `${i.name} x${i.qty}`).join(", ") +
+                `\nTotal: ${formatRp(total)}`,
+              date: new Date().toISOString(),
+            })
+          }
           className="btn mt-5 w-full bg-[#25D366] text-white hover:brightness-105"
         >
           Checkout via WhatsApp
