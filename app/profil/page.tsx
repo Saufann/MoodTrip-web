@@ -15,7 +15,7 @@ import { STORE_EVENT } from "@/lib/store";
 import { GALEN_INFO, GalenId, MBTI_DESC } from "@/lib/tests";
 import { useUser } from "@/components/useUser";
 import { supabase, isSupabaseReady } from "@/lib/supabase";
-import { loadCloudProfile } from "@/lib/profile";
+import { syncOnLogin } from "@/lib/sync";
 
 export default function ProfilPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -28,9 +28,9 @@ export default function ProfilPage() {
     return () => window.removeEventListener(STORE_EVENT, update);
   }, []);
 
-  // Saat login terdeteksi, tarik profil dari cloud sekali
+  // Saat login terdeteksi, sinkronkan profil + wishlist + pesanan
   useEffect(() => {
-    if (user) loadCloudProfile(user.id);
+    if (user) syncOnLogin(user.id);
   }, [user]);
 
   if (!profile) return <div className="min-h-[50vh]" />;
@@ -215,12 +215,17 @@ export default function ProfilPage() {
                 <span className="font-semibold">{user.email}</span> — profil
                 tersinkron ke akunmu.
               </p>
-              <button
-                onClick={() => supabase?.auth.signOut()}
-                className="btn-outline py-2 text-sm"
-              >
-                Keluar
-              </button>
+              <div className="flex gap-2">
+                <Link href="/reset-password" className="btn-outline py-2 text-sm">
+                  🔑 Ubah Sandi
+                </Link>
+                <button
+                  onClick={() => supabase?.auth.signOut()}
+                  className="btn-outline py-2 text-sm"
+                >
+                  Keluar
+                </button>
+              </div>
             </>
           ) : (
             <>

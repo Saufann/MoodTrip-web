@@ -1,11 +1,18 @@
 "use client";
 
-// Toko aksesoris travel (contoh data). Nanti dari Supabase / Wix Stores.
+// Toko aksesoris travel & oleh-oleh — kartu gaya marketplace.
+// Nanti data dari Supabase (tabel products).
 
 import { useState } from "react";
 import { productImage } from "@/lib/images";
-import { addToCart } from "@/lib/store";
-import { Product, TRAVEL_GEAR, KHAS_LOMBOK } from "@/lib/products";
+import { addToCart, parsePrice, formatRp } from "@/lib/store";
+import {
+  Product,
+  TRAVEL_GEAR,
+  KHAS_LOMBOK,
+  discountPct,
+  soldLabel,
+} from "@/lib/products";
 import { useModal } from "@/components/useModal";
 import HeartNamed from "@/components/HeartNamed";
 
@@ -88,46 +95,46 @@ export default function AksesorisPage() {
 
       {kat !== "khas_lombok" && gear.length > 0 && (
         <section className="mt-10">
-        <p className="text-sm font-bold uppercase tracking-widest text-accent">
-          Perlengkapan
-        </p>
-        <h2 className="mt-1 text-2xl font-extrabold text-ink">Travel Gear</h2>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {gear.map((p) => (
-            <ProductCard
-              key={p.name}
-              p={p}
-              added={added}
-              onAdd={handleAdd}
-              onOpen={() => setDetail(p)}
-            />
-          ))}
-        </div>
-      </section>
+          <p className="text-sm font-bold uppercase tracking-widest text-accent">
+            Perlengkapan
+          </p>
+          <h2 className="mt-1 text-2xl font-extrabold text-ink">Travel Gear</h2>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {gear.map((p) => (
+              <ProductCard
+                key={p.name}
+                p={p}
+                added={added}
+                onAdd={handleAdd}
+                onOpen={() => setDetail(p)}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
       {kat !== "gear" && khas.length > 0 && (
-      <section className="mt-14">
-        <p className="text-sm font-bold uppercase tracking-widest text-accent">
-          Buah tangan
-        </p>
-        <h2 className="mt-1 text-2xl font-extrabold text-ink">Khas Lombok</h2>
-        <p className="mt-1 text-sm text-muted">
-          Langsung dari perajin & UMKM lokal — setiap pembelian mendukung
-          komunitas.
-        </p>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {khas.map((p) => (
-            <ProductCard
-              key={p.name}
-              p={p}
-              added={added}
-              onAdd={handleAdd}
-              onOpen={() => setDetail(p)}
-            />
-          ))}
-        </div>
-      </section>
+        <section className="mt-14">
+          <p className="text-sm font-bold uppercase tracking-widest text-accent">
+            Buah tangan
+          </p>
+          <h2 className="mt-1 text-2xl font-extrabold text-ink">Khas Lombok</h2>
+          <p className="mt-1 text-sm text-muted">
+            Langsung dari perajin &amp; UMKM lokal — setiap pembelian mendukung
+            komunitas.
+          </p>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {khas.map((p) => (
+              <ProductCard
+                key={p.name}
+                p={p}
+                added={added}
+                onAdd={handleAdd}
+                onOpen={() => setDetail(p)}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
       {detail && (
@@ -141,6 +148,7 @@ export default function AksesorisPage() {
   );
 }
 
+// ---------- Kartu produk gaya marketplace ----------
 function ProductCard({
   p,
   added,
@@ -152,6 +160,8 @@ function ProductCard({
   onAdd: (name: string, price: string) => void;
   onOpen: () => void;
 }) {
+  const disc = discountPct(p);
+
   return (
     <article
       role="button"
@@ -161,7 +171,8 @@ function ProductCard({
       onKeyDown={(e) => e.key === "Enter" && onOpen()}
       className="group card-hover cursor-pointer overflow-hidden"
     >
-      <div className="relative h-44 overflow-hidden">
+      {/* Foto persegi + badge */}
+      <div className="relative aspect-square overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={productImage(p.name)}
@@ -169,23 +180,72 @@ function ProductCard({
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <HeartNamed kind="produk" name={p.name} className="absolute right-3 top-3" />
+        {disc && (
+          <span className="absolute left-0 top-2 rounded-r-lg bg-accent px-2 py-0.5 text-xs font-extrabold text-white shadow-soft">
+            -{disc}%
+          </span>
+        )}
+        <HeartNamed kind="produk" name={p.name} className="absolute right-2 top-2 h-8 w-8" />
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+
+      <div className="p-3">
+        {/* Nama 2 baris */}
+        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-ink">
           {p.name}
         </h3>
-        <p className="mt-0.5 text-xs leading-relaxed text-muted">{p.desc}</p>
-        <p className="mt-2 font-bold text-primary">{p.price}</p>
+
+        {/* Harga + coret */}
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-1.5">
+          <span className="text-base font-extrabold text-primary">
+            {p.price}
+          </span>
+          {p.oldPrice && (
+            <span className="text-xs text-muted line-through">{p.oldPrice}</span>
+          )}
+        </div>
+
+        {/* Rating + terjual */}
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted">
+          <span className="text-accent">★</span>
+          <span className="font-semibold text-ink">{p.rating.toFixed(1)}</span>
+          <span aria-hidden>·</span>
+          {soldLabel(p.sold)}
+        </p>
+
+        {/* Toko / asal */}
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted">
+          {p.official ? (
+            <span
+              aria-label="Toko resmi"
+              className="grid h-3.5 w-3.5 flex-none place-items-center rounded-full bg-primary text-[9px] font-bold text-white"
+            >
+              ✓
+            </span>
+          ) : (
+            <svg aria-hidden width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-none">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          )}
+          <span className="truncate">{p.origin}</span>
+        </p>
+
+        {/* Badge ongkir */}
+        {p.freeShipping && (
+          <span className="mt-1.5 inline-block rounded border border-green-600/40 bg-green-50 px-1.5 py-px text-[10px] font-semibold text-green-700">
+            Gratis Ongkir
+          </span>
+        )}
+
         <button
           onClick={(e) => {
             e.stopPropagation();
             onAdd(p.name, p.price);
           }}
-          className={`btn mt-3 w-full py-2 text-sm ${
+          className={`btn mt-2.5 w-full py-1.5 text-xs ${
             added === p.name
               ? "bg-primary-dark text-white"
-              : "bg-primary text-white hover:bg-primary-dark"
+              : "border border-primary bg-white text-primary hover:bg-primary hover:text-white"
           }`}
         >
           {added === p.name ? "✓ Masuk keranjang" : "+ Keranjang"}
@@ -195,6 +255,7 @@ function ProductCard({
   );
 }
 
+// ---------- Modal detail produk ----------
 function ProductModal({
   p,
   onClose,
@@ -206,6 +267,8 @@ function ProductModal({
 }) {
   useModal(onClose);
   const [qty, setQty] = useState(1);
+  const disc = discountPct(p);
+  const subtotal = formatRp(parsePrice(p.price) * qty);
 
   return (
     <div
@@ -216,16 +279,21 @@ function ProductModal({
       aria-label={`Detail ${p.name}`}
     >
       <div
-        className="w-full max-w-md animate-fade-up overflow-hidden rounded-t-3xl bg-white shadow-card sm:rounded-3xl"
+        className="max-h-[92vh] w-full max-w-md animate-fade-up overflow-y-auto rounded-t-3xl bg-white shadow-card sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative h-56">
+        <div className="relative aspect-[4/3]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={productImage(p.name)}
             alt={p.name}
             className="h-full w-full object-cover"
           />
+          {disc && (
+            <span className="absolute left-0 top-4 rounded-r-lg bg-accent px-2.5 py-1 text-sm font-extrabold text-white shadow-soft">
+              -{disc}%
+            </span>
+          )}
           <button
             type="button"
             aria-label="Tutup"
@@ -236,12 +304,69 @@ function ProductModal({
           </button>
         </div>
 
-        <div className="p-7">
-          <h2 className="text-xl font-extrabold text-ink">{p.name}</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted">{p.desc}</p>
-          <p className="mt-3 text-2xl font-extrabold text-primary">{p.price}</p>
+        <div className="p-6">
+          {/* Harga dulu, ala marketplace */}
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-primary">
+              {p.price}
+            </span>
+            {p.oldPrice && (
+              <span className="text-sm text-muted line-through">
+                {p.oldPrice}
+              </span>
+            )}
+          </div>
+          <h2 className="mt-1 text-lg font-bold leading-snug text-ink">
+            {p.name}
+          </h2>
 
-          <div className="mt-5 flex items-center justify-between gap-4">
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+            <span>
+              <span className="text-accent">★</span>{" "}
+              <b className="text-ink">{p.rating.toFixed(1)}</b>
+            </span>
+            <span aria-hidden>·</span>
+            <span>{soldLabel(p.sold)}</span>
+            <span aria-hidden>·</span>
+            <span>Stok: {p.stock}</span>
+          </p>
+
+          {/* Toko */}
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-cream px-3 py-2.5 text-sm">
+            {p.official ? (
+              <span className="grid h-5 w-5 flex-none place-items-center rounded-full bg-primary text-[10px] font-bold text-white">
+                ✓
+              </span>
+            ) : (
+              <span aria-hidden>🧵</span>
+            )}
+            <span className="font-medium text-ink">{p.origin}</span>
+            {p.official && (
+              <span className="chip ml-auto bg-primary/10 text-[10px] font-bold text-primary">
+                Official Store
+              </span>
+            )}
+          </div>
+
+          <p className="mt-3 text-sm leading-relaxed text-muted">{p.desc}</p>
+
+          {/* Info pengiriman */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {p.freeShipping && (
+              <span className="rounded border border-green-600/40 bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
+                🚚 Gratis Ongkir
+              </span>
+            )}
+            <span className="rounded border border-line bg-white px-2 py-0.5 text-[11px] font-medium text-muted">
+              Dikirim dari Lombok
+            </span>
+            <span className="rounded border border-line bg-white px-2 py-0.5 text-[11px] font-medium text-muted">
+              Bisa COD area Mataram
+            </span>
+          </div>
+
+          {/* Qty + tambah */}
+          <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -257,7 +382,7 @@ function ProductModal({
               <button
                 type="button"
                 aria-label="Tambah jumlah"
-                onClick={() => setQty(Math.min(99, qty + 1))}
+                onClick={() => setQty(Math.min(p.stock, qty + 1))}
                 className="grid h-10 w-10 place-items-center rounded-full border border-line text-ink transition-colors hover:border-primary hover:text-primary"
               >
                 +
@@ -270,7 +395,7 @@ function ProductModal({
               }}
               className="btn-primary flex-1"
             >
-              + Keranjang ({qty})
+              + Keranjang · {subtotal}
             </button>
           </div>
         </div>

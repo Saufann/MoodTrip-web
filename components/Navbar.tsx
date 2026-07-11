@@ -9,6 +9,7 @@ import { useUser } from "@/components/useUser";
 
 const links = [
   { href: "/jelajah", label: "Jelajah" },
+  { href: "/peta", label: "Peta" },
   { href: "/paket", label: "Paket Wisata" },
   { href: "/aksesoris", label: "Aksesoris" },
   { href: "/kuliner", label: "Kuliner" },

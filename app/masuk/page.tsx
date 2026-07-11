@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, isSupabaseReady } from "@/lib/supabase";
-import { loadCloudProfile } from "@/lib/profile";
+import { syncOnLogin } from "@/lib/sync";
 import { useUser } from "@/components/useUser";
 
 type Mode = "masuk" | "daftar";
@@ -41,7 +41,7 @@ export default function MasukPage() {
               : error.message,
         });
       } else if (data.user) {
-        await loadCloudProfile(data.user.id);
+        await syncOnLogin(data.user.id);
         router.push("/profil");
       }
     } else {
@@ -52,7 +52,8 @@ export default function MasukPage() {
       });
       if (error) {
         setMsg({ type: "error", text: error.message });
-      } else if (data.session) {
+      } else if (data.session && data.user) {
+        await syncOnLogin(data.user.id);
         router.push("/profil");
       } else {
         setMsg({
@@ -67,6 +68,27 @@ export default function MasukPage() {
 
   async function logout() {
     await supabase?.auth.signOut();
+  }
+
+  async function forgotPassword() {
+    if (!supabase) return;
+    if (!email.trim()) {
+      setMsg({ type: "error", text: "Isi email-mu dulu, lalu klik Lupa kata sandi." });
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setMsg(
+      error
+        ? { type: "error", text: error.message }
+        : {
+            type: "info",
+            text: `Link reset terkirim ke ${email} — cek inbox/spam, lalu ikuti tautannya.`,
+          }
+    );
+    setBusy(false);
   }
 
   return (
@@ -165,9 +187,20 @@ export default function MasukPage() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-ink">
-                  Kata sandi
-                </label>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium text-ink">
+                    Kata sandi
+                  </label>
+                  {mode === "masuk" && (
+                    <button
+                      type="button"
+                      onClick={forgotPassword}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Lupa kata sandi?
+                    </button>
+                  )}
+                </div>
                 <input
                   id="password"
                   type="password"

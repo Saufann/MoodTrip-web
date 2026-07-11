@@ -16,8 +16,11 @@ import {
   addToCart,
   STORE_EVENT,
 } from "@/lib/store";
+import { syncWishlist } from "@/lib/sync";
+import { useUser } from "@/components/useUser";
 
 export default function WishlistPage() {
+  const { user } = useUser();
   const [ids, setIds] = useState<number[]>([]);
   const [paketNames, setPaketNames] = useState<string[]>([]);
   const [produkNames, setProdukNames] = useState<string[]>([]);
@@ -34,6 +37,11 @@ export default function WishlistPage() {
     window.addEventListener(STORE_EVENT, update);
     return () => window.removeEventListener(STORE_EVENT, update);
   }, []);
+
+  // Tarik wishlist dari akun saat login terdeteksi
+  useEffect(() => {
+    if (user) syncWishlist(user.id);
+  }, [user]);
 
   if (!ready) return <div className="min-h-[50vh]" />;
 

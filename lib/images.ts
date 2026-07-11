@@ -51,6 +51,45 @@ export function paketImage(persona: string) {
   return PAKET_IMAGES[persona] ?? u("photo-1501785888041-af3ef285b470");
 }
 
+// Galeri foto per paket (untuk slider di kartu) — foto pertama = foto utama.
+// Sang Penenang: yoga, meditasi, spa. Silakan ganti/tambah sesukamu.
+const PAKET_GALLERIES: Record<string, string[]> = {
+  "Sang Penenang": [
+    u("photo-1544367567-0f2fcb009e0b"), // yoga di alam
+    u("photo-1506126613408-eca07ce68773"), // meditasi
+    u("photo-1540555700478-4be289fbecef"), // spa & relaksasi
+  ],
+  "Pemburu Rasa": [
+    u("photo-1555939594-58d7cb561ad1"), // bakaran
+    u("photo-1504674900247-0877df9cc836"), // hidangan
+    u("photo-1512058564366-18510be2db19"), // nasi khas
+  ],
+  "Sang Petualang": [
+    "/images/trek_merese.jpg", // foto sendiri
+    u("photo-1506905925346-21bda4d32df4"), // puncak gunung
+    u("photo-1476514525535-07fb3b4ae5f1"), // kano di danau
+  ],
+  "Pemburu Estetik": [
+    "/images/foto_ampenan.jpeg", // foto sendiri
+    u("photo-1502920917128-1aa500764cbd"), // kamera
+    u("photo-1516035069371-29a1b244cc32"), // fotografer bekerja
+  ],
+  "Sang Romantis": [
+    u("photo-1414235077428-338989a2e8c0"), // fine dining
+    u("photo-1520250497591-112f2f40a3f4"), // resort
+    u("photo-1519046904884-53103b34b206"), // pantai senja
+  ],
+  "Penjelajah Keluarga": [
+    u("photo-1511895426328-dc8714191300"), // keluarga
+    u("photo-1470246973918-29a93221c455"), // piknik
+    "/images/pantai_senggigi.jpg", // foto sendiri
+  ],
+};
+
+export function paketGallery(persona: string): string[] {
+  return PAKET_GALLERIES[persona] ?? [paketImage(persona)];
+}
+
 // Foto resto kuliner (key = nama)
 const RESTO_IMAGES: Record<string, string> = {
   "Warung Ayam Taliwang": "/images/ayam_taliwang.jpeg",

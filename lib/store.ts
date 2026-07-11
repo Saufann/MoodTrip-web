@@ -1,7 +1,16 @@
 // Store ringan berbasis localStorage untuk wishlist & keranjang.
 // Nanti bisa dipindah ke Supabase saat auth aktif — API-nya sudah dipisah di sini.
 
+import { supabase } from "@/lib/supabase";
+
 export type CartItem = { name: string; price: number; qty: number };
+
+// User yang sedang login (null bila belum / Supabase tidak aktif)
+async function cloudUser() {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getUser();
+  return data.user ?? null;
+}
 
 const WISHLIST_KEY = "moodtrip_wishlist";
 const CART_KEY = "moodtrip_cart";
@@ -44,7 +53,26 @@ export function toggleWishlist(id: number): boolean {
     ? list.filter((x) => x !== id)
     : [...list, id];
   write(WISHLIST_KEY, next);
-  return next.includes(id);
+  const saved = next.includes(id);
+  // Sinkron ke tabel wishlists bila login (fire & forget)
+  void (async () => {
+    const u = await cloudUser();
+    if (!u || !supabase) return;
+    if (saved) {
+      await supabase.from("wishlists").upsert({ user_id: u.id, spot_id: id });
+    } else {
+      await supabase
+        .from("wishlists")
+        .delete()
+        .match({ user_id: u.id, spot_id: id });
+    }
+  })();
+  return saved;
+}
+
+// Timpa wishlist lokal (dipakai saat merge dengan cloud — tanpa push balik)
+export function setWishlistLocal(ids: number[]) {
+  write(WISHLIST_KEY, ids);
 }
 
 // ---------- Wishlist paket & produk (berbasis nama) ----------
@@ -147,6 +175,7 @@ export type Order = {
   title: string;
   detail: string;
   date: string; // ISO
+  status?: string; // dari DB: menunggu | dikonfirmasi | selesai | dibatalkan
 };
 
 const ORDERS_KEY = "moodtrip_orders";
@@ -156,7 +185,27 @@ export function getOrders(): Order[] {
 }
 
 export function saveOrder(order: Order) {
-  write(ORDERS_KEY, [order, ...getOrders()]);
+  // Login → catat ke DB (status default: menunggu); tidak → simpan lokal.
+  void (async () => {
+    const u = await cloudUser();
+    if (u && supabase) {
+      const { error } = await supabase.from("orders").insert({
+        user_id: u.id,
+        type: order.type,
+        title: order.title,
+        detail: order.detail,
+      });
+      if (!error) {
+        emit();
+        return;
+      }
+    }
+    write(ORDERS_KEY, [order, ...getOrders()]);
+  })();
+}
+
+export function clearLocalOrders() {
+  write(ORDERS_KEY, []);
 }
 
 // ---------- Review user (per spot) ----------

@@ -4,7 +4,8 @@
 // mitra yang menjalankan trip-nya. Pemesanan diteruskan ke WhatsApp mitra/admin.
 
 import { useEffect, useState } from "react";
-import { paketImage } from "@/lib/images";
+import { paketGallery } from "@/lib/images";
+import ImageSlider from "@/components/ImageSlider";
 import { WHATSAPP, saveOrder } from "@/lib/store";
 import { Paket, PACKAGES } from "@/lib/paket";
 import { useModal } from "@/components/useModal";
@@ -65,12 +66,10 @@ export default function PaketPage() {
             className="group card-hover flex cursor-pointer flex-col overflow-hidden"
           >
             <div className="relative h-44 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={paketImage(p.persona)}
+              <ImageSlider
+                images={paketGallery(p.persona)}
                 alt={p.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-44"
               />
               <span
                 className={`chip absolute left-3 top-3 font-semibold shadow-soft backdrop-blur ${
@@ -163,11 +162,10 @@ function DetailModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-52">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={paketImage(paket.persona)}
+          <ImageSlider
+            images={paketGallery(paket.persona)}
             alt={paket.name}
-            className="h-full w-full object-cover"
+            className="h-52"
           />
           <button
             type="button"
