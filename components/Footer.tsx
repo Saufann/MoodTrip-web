@@ -87,10 +87,10 @@ export default function Footer() {
             ))}
             <li>
               <a
-                href="tel:+6285737736349"
+                href="tel:+6281558024800"
                 className="text-white/70 transition-colors hover:text-white"
               >
-                0857-3773-6349
+                0815-5802-4800
               </a>
             </li>
             <li className="text-white/70">Mataram, Lombok, NTB</li>

@@ -54,8 +54,8 @@ export default function TentangPage() {
       <div className="mt-8 rounded-2xl border border-line bg-white p-6 shadow-soft">
         <h2 className="font-bold text-ink">Kontak</h2>
         <p className="mt-2 text-sm text-muted">
-          <a href="tel:+6285737736349" className="hover:text-primary">
-            0857-3773-6349
+          <a href="tel:+6281558024800" className="hover:text-primary">
+            0815-5802-4800
           </a>{" "}
           · Mataram, Lombok, NTB
         </p>

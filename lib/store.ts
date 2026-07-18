@@ -15,7 +15,7 @@ async function cloudUser() {
 const WISHLIST_KEY = "moodtrip_wishlist";
 const CART_KEY = "moodtrip_cart";
 export const STORE_EVENT = "moodtrip:store";
-export const WHATSAPP = "6285737736349";
+export const WHATSAPP = "6281558024800"; // WA admin
 
 function emit() {
   if (typeof window !== "undefined") {
